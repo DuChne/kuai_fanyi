@@ -1,0 +1,150 @@
+<template>
+  <!-- template里只能有一个根节点 -->
+  <div class="demo-page">
+    <img src="{{message.img}}" alt="" style="width: 750px;height: 422px;">
+    <div class="ks-content">
+      <div class="ks-title"><text style="color: #353535;font-size: 40px;">{{message.title}}</text></div>
+      <div class="ks-content-item" for="{{message.textList}}" >
+        <text>{{$item.content}}</text>
+      </div>
+    </div>
+    
+  </div>
+</template>
+
+<script>
+import storage from '@system.storage'
+import fetch from '@system.fetch'
+import prompt from '@system.prompt'
+import router from '@system.router'
+
+
+export default {
+  private: {
+    langList: [],
+    a:'',
+    message:''
+  },
+  /**
+   * 当用户点击菜单按钮时触发，调用app中定义的方法showMenu
+   * 注意：使用加载器测试`创建桌面快捷方式`功能时，请先在`系统设置`中打开`应用加载器`的`桌面快捷方式`权限
+   */
+  onMenuPress() {
+    // this.$app.$def.showMenu()
+  },
+  onShow() {
+    APP_STATISTICS.page_show( this );//在onShow方法的第一行加入此代码
+        //App业务代码
+     let that=this;
+     storage.get({
+       key:'arr',
+       success: function(data) {
+           that.langList=(data)
+          
+         if(that.langList.length != 0){
+           that.langList=that.pushArra(JSON.parse(data))
+         }
+         
+      },
+      fail: function(data, code) {
+        console.log(`handling fail, code = ${code}`)
+      }
+     }) 
+  },
+  onInit() {
+    this.welcomeFun(this.$page.query.id)
+  },
+  onHide() {
+        APP_STATISTICS.page_hide( this ); //在onHide方法的第一行加入此代码
+        //...业务代码
+    },
+  clearFun (){
+     let that=this;
+
+    storage.clear({
+      success: function(data) {
+        console.log('handling success')
+        that.langList =[]
+      },
+    })
+  },
+  pushArra (arr) {
+    let res = []
+    let obj = {}
+    for (let i = 0; i < arr.length; i++) {
+      if (!obj[arr[i].dst]) { // name  对应数组中的name
+        res.push(arr[i])
+        obj[arr[i].dst] = true
+      }
+    }
+    return res
+  },
+  welcomeFun(id){
+    var that=this;
+    fetch.fetch({
+        url: 'https://wx.iciba.com/index.php?c=welcome&m=getArticleContent&id=' + id,
+        method: 'get',
+        resphonseType: 'json',
+        header: {
+            'Content-Type': 'application/json',
+        },
+        success: function (res) {
+        // that.a=JSON.parse(resphose).data.adInfo
+         var resphose = res.data;
+         if(JSON.parse(resphose).status == 1){
+           that.a=JSON.parse(resphose).message
+           that.message=JSON.parse(resphose).message;
+         }  
+        
+        },
+        fail: function (err) {}
+    })
+  }
+}
+</script>
+
+<style>
+  .demo-page {
+    flex-direction: column;
+    background-color: #f6f6f6
+  }
+  .flex_sb{
+    display: flex;
+    justify-content: space-between;
+    padding-right:30px;
+    border-bottom: 1px solid #ffffff;
+  }
+  .newDiv{
+    width: 750px;
+    padding-left:30px;
+    display: flex;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 28px;
+    border-bottom: 1px solid #ececec;
+    flex-wrap: wrap;
+  }
+  .iconfont {
+    background-color: #aaa
+  }
+  .ks-content {
+    width: 750px;
+    padding: 22px 30px 0;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .ks-title {
+    font-size: 40px;
+    color: #353535;
+    line-height: 64px;
+    margin-bottom: 18px;
+}
+.ks-content-item {
+  width: 640px;
+    font-size: 34px;
+    color: #353535;
+    line-height: 54px;
+    margin-bottom: 54px;
+}
+</style>

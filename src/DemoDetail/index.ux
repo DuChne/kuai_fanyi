@@ -1,0 +1,309 @@
+<template>
+  <!-- template里只能有一个根节点 -->
+  <div class="demo-page">
+    <div class="ks-search">
+      <div class="shur" style="margin: auto;display: flex;align-content: center;justify-content: flex-start;">
+        <input type="text" style="width:600px;border-right:1px solid #999999;padding-left:30px;" onchange="shuFun" value="{{value}}" placeholder="输入单词或者句子"></input>
+        <div style="margin-left:20px;" @click="textFuna"><text style="font-size:30px;color:#4189df;">搜索</text></div>
+      </div>
+    </div>
+    <!-- 翻译结果  有动词、名称 -->
+    <div if="{{symbols}}" class="gongSiv flex_con" style="padding-left:30px;margin-bottom: 20px;background-color:#ffffff;"><text style="font-size:40px;">[{{symbols.word_symbol}}]</text>
+      <img src="../Common/voice.png" alt="" style="width:40px;height:40px;margin-top:10px;margin-left:20px;"  @click="audioPlay(symbols.symbol_mp3)">
+    </div>
+    <div class="gongSiv flex_wrap" if="{{symbols.parts}}" style="padding-left:30px;padding-bottom: 20px;background-color:#ffffff;" for="{{symbols.parts}}">
+      <div><text class="font_34" if="{{$item.part}}">{{$item.part}}.</text></div>      
+      <div for="{{$item.means}}" style="width:500px"><div if="{{$idx != 0}}" style="margin-right:50px"></div><text class="font_34" >{{$item}}</text></div>
+    </div>
+    <!-- 翻译结果  有动词、名称 -->
+
+    <!-- 翻译结果  无动词、名称 -->
+    <div class="gongSiv " if="{{newbaesInfo.translate_result}}" style="background-color:#ffffff;padding-left:30px;padding-bottom: 20px;display: flex;flex-wrap: wrap;padding-top:20px;border-bottom:1px solid #e5e5e5;">
+      <div style="width:700px"><text class="font_34">{{newbaesInfo.translate_result}}</text></div>
+      <div style="width:650px;margin-top:34px;padding-right:-40px;" class="flex_sb">
+        <text>以上结果来自机器翻译。</text>
+        <img src="../Common/voice.png" alt="" style="width:40px;height:40px;"  @click="audioPlay(newbaesInfo.symbols[0].symbol_mp3)" if="{{newbaesInfo.symbols[0].symbol_mp3 && newbaesInfo.symbols}}">
+      </div>
+    </div>
+    <!-- 翻译结果  无动词、名称 -->
+
+    <div class="flex_wrap" style="width:750px;margin-top:30px;padding-left:30px;padding-right:30px;padding-bottom:20px;background-color:#ffffff;border-top: 1px solid #dedede;border-bottom: 1px solid #dedede;">
+      <div style="width:750px;padding:10px;">
+        <div  style="width:750px;padding-top:20px;border-bottom:1px solid #e5e5e5;padding-bottom:10px;" class="newFlex1">
+          <text style="color: #b2b2b2;font-size: 26rpx;">双语例句</text>
+        </div>
+      </div>
+      <div style="width:750px;padding-top:30px;padding-bottom:10px" for="{{sentence}}">
+        <div style="width:700px;"  class="flex_wrap">
+          <div style="width:700px;"><text class="font_34">{{$item.Network_en}}</text></div>
+          <div style="width:700px;"><text class="font_32">{{$item.Network_cn}}</text></div>
+        </div>
+        <div style="width:40px;">
+        <img  src="../Common/voice.png" alt="" style="width:40px;height:40px;"  @click="audioPlay($item.tts_mp3)"></div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script>
+import storage from '@system.storage'
+import fetch from '@system.fetch'
+import prompt from '@system.prompt'
+import router from '@system.router'
+import audio from '@system.audio'
+
+
+
+export default {
+  private: {
+    curLang: {},
+    language:'',
+    to:'',
+    b:"",
+    value:'',
+    newAbool:false,
+    symbols:{},
+    newbaesInfo:{
+      translate_result:'',
+      symbols:[
+        {
+          symbol_mp3:''
+        }
+      ]
+    },
+    sentence:[
+      {
+            "Network_id": "",
+            "Network_en": "",
+            "Network_cn": "",
+            "tts_mp3": "",
+            "tts_size": "19K",
+            "source_type": 0,
+            "source_id": 0,
+            "source_title": "",
+            "Network_en_high": [
+                {
+                    "sentence": "",
+                    "is_high": 0
+                }
+            ]
+        },
+    ]
+  },
+  /**
+   * 当用户点击菜单按钮时触发，调用app中定义的方法showMenu
+   * 注意：使用加载器测试`创建桌面快捷方式`功能时，请先在`系统设置`中打开`应用加载器`的`桌面快捷方式`权限
+   */
+  onMenuPress() {
+    this.$app.$def.showMenu()
+  },
+  onInit() {
+    this.value=this.$page.query.value
+    this.welcomeFun(this.$page.query.value)
+  },
+  welcomeFun(value){
+    var that=this;
+    fetch.fetch({
+        url: 'https://wx.iciba.com/index.php?c=welcome&m=word&list=1,3,7,8&word=' + value,
+        method: 'get',
+        resphonseType: 'json',
+        header: {
+            'Content-Type': 'application/json',
+        },
+        success: function (res) {
+          var resphose = res.data;
+          // that.b=JSON.parse(resphose)
+         if(JSON.parse(resphose).errno == 0){
+           that.baesInfo=JSON.parse(resphose);
+          that.b=JSON.parse(resphose)
+          if(JSON.parse(resphose).baesInfo.symbols && JSON.parse(resphose).baesInfo){
+            that.symbols=JSON.parse(resphose).baesInfo.symbols[0]
+          }
+          that.newbaesInfo=JSON.parse(resphose).baesInfo
+          that.sentence=JSON.parse(resphose).sentence
+          
+         }  
+        
+        },
+        fail: function (err) {}
+    })
+  },
+  select(name,id){
+    let obj = {
+      name:name,
+      id:id
+    }
+
+    storage.set({
+      key:"lang",
+      value:obj,
+      success: function(data) {
+        console.log('handling success')
+      },
+      fail: function(data, code) {
+        console.log(`handling fail, code = ${code}`)
+      }
+    })
+    storage.set({
+      key:"langname",
+      value:name,
+      success: function(data) {
+        console.log('handling success')
+      },
+      fail: function(data, code) {
+        console.log(`handling fail, code = ${code}`)
+      }
+    })
+    
+    router.back()
+  },
+  onShow(){
+        APP_STATISTICS.page_show( this );//在onShow方法的第一行加入此代码
+        //App业务代码
+    },
+    onHide() {
+        APP_STATISTICS.page_hide( this ); //在onHide方法的第一行加入此代码
+        //...业务代码
+    },
+    //输入
+    textFuna(){
+      var that=this;
+      fetch.fetch({
+                    url: 'https://wx.iciba.com/index.php?c=welcome&m=getSuggest&word='+that.textValue,
+                   method: 'get',
+                    resphonseType: 'json',
+                    header: {
+                        'Content-Type': 'application/json',
+                    },
+                    success: function (res) {
+                    var resphose = res.data;
+                      if(JSON.parse(resphose).status == 1){
+                        that.a=JSON.parse(resphose)
+                        that.messageArr=JSON.parse(resphose).message                      
+                      }
+                    },
+                    fail: function (err) {}
+                })
+    },
+    audioPlay(src) {
+        audio.src=src
+        audio.play()//开始播放音频
+    },
+    // 获取不同的节点
+  nodefunction(ev){
+    // if(!ev.target.attr.value && ev){
+    //   this.textValue=" "
+    //   return
+    // }
+    console.info(ev)
+    var val = ev.target.attr.value;
+    if(val){
+      return val;
+    }else{
+    val = ev.target.attr.attrs.value;
+      return val;
+    }
+  },
+     shuFun(ev){
+      this.newAbool=true;
+      this.textValue=ev.value
+      this.textFuna() 
+    },
+}
+</script>
+
+<style>
+  .demo-page {
+    flex-direction: column;
+    background-color: #f7f8f9;
+    padding-top: 230px;
+    padding-bottom: 100px;
+  }
+
+  .newDiv{
+    width: 750px;
+    padding-left:30px;
+    display: flex;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 28px;
+    border-bottom: 1px solid #ececec;
+    justify-content: space-between;
+  }
+  .iconfont {
+    background-color: #aaa
+  }
+  .ks-search {
+      width: 750px;
+      height: 200px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #4189df;
+      padding-bottom: 30px;
+      
+  }
+  .zhe{
+    position: fixed;
+    left: 0;
+    top: 200px;
+    bottom: 0px;
+    right: 0px;
+    background-color: rgba(0,0,0,.7);
+  }
+  .zhe1{
+    position: fixed;
+    left: 0;
+    top: 200px;
+    bottom: 0px;
+    right: 0px;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+  }
+  .shur{
+    width: 720px;
+    height: 100px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ks-mask-line {
+    line-height: 72px;
+    margin-top: 50px;
+    padding-left: 30px;
+}
+
+  .gongSiv{
+    width: 750px;
+  }
+  .font_34{
+    font-size: 34px;
+  }
+  .font_32{
+    font-size: 34px;
+    color: #888;
+  }
+  .font_40{
+    font-size: 40px;
+  }
+  .flex_wrap{
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .flex_con{
+    display: flex;
+    align-content: center;
+  }
+  .flex_sb{
+    display: flex;
+    justify-content: space-between;
+  }
+</style>

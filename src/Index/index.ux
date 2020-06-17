@@ -1,0 +1,1051 @@
+<template>
+  <!-- template里只能有一个根节点 -->
+  <div class="demo-page">
+    <div if="{{loging}}">
+      <div class="demo-page" if="{{!isWeb}}" style="padding-top:200px;">
+
+        <div class="ks-search">
+          <div class="shur" style="margin: auto;display: flex;align-content: center;justify-content: flex-start;">
+            <input type="text" style="width:600px;border-right:1px solid #999999;padding-left:30px;" onchange="shuFun" placeholder="输入单词或者句子"></input>
+            <div style="margin-left:20px;" @click="tiaoDemo(textValue)"><text style="font-size:30px;color:#4189df;">搜索</text></div>
+          </div>
+        </div>
+
+        <!-- <div if="{{newAbool}}"> -->
+        <!-- <div class="zhe" if="{{!textValue}}"></div> -->
+        <div class="zhe1" if="{{textValue}}">
+          <div><text>{{a}}</text></div>
+          <div for="{{messageArr}}" style="width:750px;display: flex;flex-wrap: wrap;" class="ks-mask-line" @click="tiaoDemo($item.key)">
+            <text> {{$item.key}} </text>
+            <text if="$item.means[0]"> {{$item.means[0].part?$item.means[0].part:''}} </text><text>{{$item.paraphrase}}</text>
+          </div>
+
+        </div>
+        <!-- </div> -->
+
+        <div style="width:750px;padding:30px;background-color:#ffffff;" class="newFlex">
+          <div style="width:750px;padding-top40px;margin-bottom:30px;padding-bottom:10px;
+border-bottom:1px solid #e5e5e5;"><text style="font-size:26px;color:#b2b2b2;">每日一句</text></div>
+
+          <div style="width:750px;"><text style="font-size:32px;color:#000000;">{{getToday.content}}</text></div>
+          <div style="width:750px;margin-top:10px"><text style="font-size:24px;color:#999999;">{{getToday.note}}</text></div>
+        </div>
+        <div style="width:750px;padding:30px;background-color:#ffffff;margin-top:30px;">
+          <div style="width:750px;padding-top:40px;padding-bottom20px;border-bottom:1px solid #e5e5e5;padding-bottom:10px;" class="newFlex1">
+            <text style="color: #b2b2b2;font-size: 26rpx;">双语资讯</text>
+            <text style="color: #4189DF;font-size: 26rpx;" @click="exchangeFUn">换一换</text>
+          </div>
+        </div>
+        <!-- <div><text>{{a}}</text></div> -->
+        <div style="width:750px;padding:30px;background-color:#ffffff;" for="{{messageList}}" @click="tiaoAbout($item.id)">
+          <img src="{{$item.thumb}}" alt="" style="width:192px;height:120px;margin-right:30px;">
+          <div style="width:468px;height:90px;display: flex;flex-direction: column;">
+            <text style="color: #353535;font-size: 32px;line-height: 44px;">{{$item.title}}</text>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- 加载中 -->
+    <div class="maska" style="position: fixed;top:0px;left:0px;right:0px;bottom:0px;background-color:#FFF5D0;display: flex;justify-content: center;align-items: center" if="{{!loging}}">
+      <image src="https://file.scymob.com/timg3.gif" alt="" style="width:250px;"></image>
+    </div>
+    <web class="web-comp" if="{{isWeb}}" src="{{webh5}}" allowthirdpartycookies="{{allow}}" id="web"></web>
+    <!-- 浮标 -->
+    <!-- if="{{c_box}}" -->
+    <div class="imgFixa" ontouchstart="menuTouchStart1($idx)" ontouchmove="menuTouchMove1($idx)" ontouchend="menuTouchEnd1($idx)" style='left:{{moveDiv.adver[$idx].left}}px;top:{{moveDiv.adver[$idx].top}}px' for="{{c_box}}" @click="jwelfare($item.action,'c_box')" if="{{c_box && show_native}}">
+      <image src="{{$item.icon}}" if="{{$item.show}}" style="width:{{$item.pos.w}};"></image>
+    </div>
+
+    <!-- 盒子 -->
+    <div class="imgFixa" ontouchstart="menuTouchStart" ontouchmove="menuTouchMove" ontouchend="menuTouchEnd" style='left:{{moveDiv.menuStyle.left}}px;top:{{moveDiv.menuStyle.top?moveDiv.menuStyle.top:""}}px;bottom:{{moveDiv.menuStyle.top?"":adInfo.icon.pos.b}}' if="{{adInfo.icon.show && show_native}}" @click="jingxb">
+      <image src="{{adInfo.icon.url}}" if="{{adInfo.icon.show}}" style="width:120px;"></image>
+    </div>
+
+    <!-- Banner -->
+    <!-- if="{{b_box}}" -->
+    <div style='background-color: rgba(0,0,0,.1);position: fixed;display: flex;justify-content: flex-end;flex-wrap: wrap;right:{{b_boxAd.right != "false"?b_boxAd.right:""}};top:{{b_boxAd.top != "false"?b_boxAd.top:""}};bottom:{{b_boxAd.bottom != "false"?b_boxAd.bottom:""}};left:{{b_boxAd.left != "false"?b_boxAd.left:""}};' if="{{diBool && show_native}}">
+      <div style='display: flex;justify-content: flex-end;flex-wrap: wrap;width:{{b_boxAd.w}};height:{{b_boxAd.h}};' if="{{b_box && b_box.show}}">
+        <div class="imgFix" @click="jwelfare(b_boxImg[0].action,'b_box')" style="width:{{b_boxAd.w}};height:{{b_boxAd.h}};" if="{{b_box && b_box.show}}">
+          <image src="{{b_boxImg[0].image}}" style="width:{{b_boxAd.w}};height:{{b_boxAd.h}};" if="{{b_boxImg[0].image}}"></image>
+        </div>
+        <image src="{{b_box.close_img}}" style='position: absolute;top:0px;right: 0px;width:50px;height:50px;' @click="diFun"></image>
+      </div>
+    </div>
+
+    <!-- 插屏 -->
+    <!-- if="{{a_box}}" -->
+    <div class="mask newBanner" if="{{banBool && show_native}}">
+      <div class="imgFix" style='width:{{quewidth}};' @click="jwelfare(a_boxImg[0].action,'a_box')" if="{{a_box && a_box.show}}">
+        <image src="{{a_boxImg[0].image}}" id="newImg" if="{{a_box.show}}" style="width:{{quewidth}};"></image>
+      </div>
+      <image src="{{a_box.close_img}}" style='width:50px;height:50px;position: absolute;top:{{a_boxAd.top != "false"?a_boxAd.top:""}};right:40px;margin-top:-80px;' @click="banFun"></image>
+    </div>
+
+    <!-- 展开盒子 -->
+    <div class="mask" if="{{jBool && show_native}}" style="display: flex;flex-wrap: wrap;">
+      <div style="width: 695px;height:54px;justify-content: flex-end;margin:auto;margin-top: 56px;">
+        <image src="https://file.scymob.com/bih.png" style="width:42px;height:42px;margin-right:2px;" @click="jingxa(adInfo.adicon_close.click_style,adInfo.adicon_close.url,'-1')"></image>
+      </div>
+      <div class="jingC" style="position: relative;">
+        <swiper class="swiper" autoplay="{{autoPlay}}" interval="{{sliderValue}}" indicator="{{indicator}}" duration="{{durationValue}}" vertical="{{isVertical}}" loop="{{loopPlay}}">
+          <div class="nDiv1" @click="jingxa($item.click_style,$item.url,$idx)" for="{{adInfo.newtop_ad.list}}">
+            <image src="{{$item.image}}" style="width:750px;height:180px;"></image>
+          </div>
+        </swiper>
+        <!-- <div class="nDiv1" @click="jingxa">
+	                            <image src="{{adInfo.top_ad.image}}" style="width:750px;height:180px;"></image>
+	                        </div> -->
+        <list class="nDiv2" flex-direction="column" style="padding-bottom:80px;" columns="3" if="{{adInfo.icon.click_style == 0}}">
+          <list-item class="nDiv3" for="{{adInfo.list}}" tid="uniqueId" @click="jwelfare($item.action,'d_box')">
+            <!-- <div style="width:132px;height:132px;border-radius:32px;"> -->
+            <image src="{{$item.icon}}" style="width:130px;height:130px;border-radius:18px;border:1px solid #D2D2D2;"></image>
+            <!-- </div> -->
+            <div style="width:150px; display: flex;justify-content: center;margin-top:5px"><text style="font-size:26px;color:#333333">{{$item.name}}</text></div>
+            <div style="width:150px;display: flex;justify-content: center;margin-top:3px"><text style="font-size:20px;color:#A8A8A8">{{$item.title}}</text></div>
+            <div style="width:95px;height:50px;background:linear-gradient(90deg,rgba(94,175,254,1),rgba(7,138,255,1));margin-top:18px;margin-bottom:18px;display: flex;justify-content: center;align-items: center;border-radius:5px;
+		"><text style="color:#ffffff;font-size:24px">查看</text></div>
+          </list-item>
+
+        </list>
+        <list class="nDiv2" style="padding-bottom:80px" flex-direction="row " columns="1" if="{{adInfo.icon.click_style == 1}}">
+          <list-item class="nDiv4" tid="uniqueId" style="padding-top:0px;padding-bottom:22px" for="{{adInfo.list}}" tid="uniqueId" @click="jwelfare($item.action,'d_box')">
+            <image src="{{$item.icon}}" style="width:110px;height:110px;border-radius:18px;border:1px solid #D2D2D2;"></image>
+            <div style="width:540px;height:100px;display:flex;flex-wrap:wrap;position: relative;">
+              <div style="width:440px;height:40px;margin-top:10px;padding-left:26px;">
+                <text style="font-size:32px;color:#333333;">{{$item.name}}</text>
+              </div>
+              <div style="width:440px;height:40px;margin-top:5px;padding-left:26px;">
+                <text style="font-size:24px;color:#A8A8A8;">{{$item.title}}</text>
+              </div>
+              <div style="width:95px;height:50px;background:linear-gradient(90deg,rgba(94,175,254,1),rgba(7,138,255,1));margin-top:18px;margin-bottom:18px;display: flex;justify-content: center;align-items: center;border-radius:5px;
+		position: absolute;top:18px;right:26px"><text style="color:#ffffff;font-size:24px;">查看</text></div>
+            </div>
+          </list-item>
+        </list>
+      </div>
+
+    </div>
+
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+import prompt from '@system.prompt'
+import fetch from '@system.fetch'
+import storage from '@system.storage'
+import device from '@system.device'
+import webview from '@system.webview'
+import md5 from '../md5.min.js'
+const appid = '20200323000403230'  //注册百度翻译api
+const key = 'MBExFgTUSrWheiNAOSMx'    //注册百度翻译api
+import publicData from "../Common/publicData.js"; //公共数据
+import plus from "../Common/means.js";//公共数据
+
+
+export default {
+  // 页面级组件的数据模型，影响传入数据的覆盖机制：private内定义的属性不允许被覆盖
+  private: {
+    title: '示例页面',
+    isPost: '',
+    shuInput: '',
+    jieInput: '',
+    a: '',
+    wem: '',
+    to: 'en',
+    moren: '英文',
+    langname: '',
+    obj: '',
+    arr: [],
+    isBool: '',
+    isWeb: false,
+    webhv2: "1",
+    newAbool: false,
+    jBool: false,
+    adInfo: {
+      icon: {
+        "show": false,
+        "url": "",
+        "click_style": 1,
+        "pos": {
+          "r": 0,
+          "b": 200
+        }
+      }
+    },
+    getToday: '',
+    pages: 1,
+    messageList: [],
+    textValue: '',
+    messageArr: [],
+    plus: plus,
+    loging: false,
+    show_native: true,
+    regId: "",
+    addInfo: {
+      show_H5: '',
+      show_native: '',
+    },
+    a_boxImg: {},//插屏
+    a_boxAd: {},//插屏
+    a_box: {
+      show: '',
+      ad: [],
+      close_img: ''
+    },//插屏
+    b_box: {
+      show: '',
+      ad: [],
+      close_img: ''
+    },//Banner
+    c_box: [],//浮标
+    banBool: false,
+    b_boxImg: {},//banner
+    b_boxImga: '',//banner
+    b_boxAd: {
+      h: ''
+    },//banner
+    windowWidth: '',
+    quewidth: '',
+    diBool: false,
+    userid: '',
+    dataObj: {
+      "userId": '',
+      "userInfo": {
+        "advertisingId": '',
+        "userId": '',
+        "serial": '',
+        "oaid": '',
+      },
+      "deviceInfo": ''
+    },
+    autoPlay: true,
+    indicator: false,
+    loopPlay: true,
+    sliderValue: 4000,
+    durationValue: 1000,
+    isVertical: false,
+    //最新添拖动
+    moveDiv: {
+      menuStyle: {
+        left: 20,
+        top: 20,
+        disX: 0,
+        disY: 0,
+        beginDrag: false
+      },
+      adver: [
+        {
+          left: 0,
+          top: 0,
+          disX: 0,
+          disY: 0,
+          beginDrag: false
+        }
+      ]
+
+    }
+  },
+  routeDetail() {
+    // 跳转到应用内的某个页面，router用法详见：文档->接口->页面路由
+    router.push({
+      uri: '/DemoDetail'
+    })
+  },
+  routeArr() {
+    // 跳转到应用内的某个页面，router用法详见：文档->接口->页面路由
+    router.push({
+      uri: '/About'
+    })
+  },
+  psotInpt(e) {
+    const that = this;
+    that.shuInput = e.target.attr.value
+    that.textFun()
+  },
+  onHide() {
+    APP_STATISTICS.page_hide(this); //在onHide方法的第一行加入此代码
+    //...业务代码
+  },
+  onInit() {
+    this.getChannelIsH();
+    this.gongFun()
+    this.getTodaySentence();
+    this.doubleList();
+  },
+  onShow() {
+    APP_STATISTICS.page_show(this);//在onShow方法的第一行加入此代码
+    var that = this;
+    storage.get({
+      key: 'dataObj',
+      success: function (data) {
+        if (!data) {
+          that.gongFun()
+        }
+      }    })
+
+    storage.get({
+      key: 'userid',
+      success: function (data) {
+        if (!data) {
+          that.userid = data ? JSON.parse(data) : ''
+        }
+      }    })
+
+    storage.get({
+      key: 'regId',
+      success: function (data) {
+        that.regId = data
+      }    })
+    storage.get({
+      key: 'arr',
+      success: function (data) {
+        that.arr = data ? JSON.parse(data) : []
+      }    })
+
+    storage.get({
+      key: 'lang',
+      success: function (data) {
+        that.wem = data
+        if (data) {
+          that.obj = JSON.parse(data)
+        }
+        storage.get({
+          key: 'isbool',
+          success: function (data) {
+            that.isBool = data
+
+          }        })
+      },
+      fail: function (data, code) {
+        console.log(`handling fail, code = ${code}`)
+      }
+    })
+    storage.get({
+      key: 'arr',
+      success: function (data) {
+        that.arr = data ? JSON.parse(data) : []
+      }    })
+
+    storage.get({
+      key: 'lang',
+      success: function (data) {
+        that.wem = data
+        if (data) {
+          //  that.langList=JSON.parse(data)
+          that.obj = JSON.parse(data)
+        }
+        storage.get({
+          key: 'isbool',
+          success: function (data) {
+            that.isBool = data
+
+          }        })
+        //  if(that.isBool != 1){
+        that.textFun()
+
+        //  }
+
+      },
+      fail: function (data, code) {
+        console.log(`handling fail, code = ${code}`)
+      }
+    })
+  },
+  jingxa(data, url, id) {
+    this.jBool = !this.jBool
+    if (data == 1) {
+      if (id != '-1') {
+        APP_STATISTICS && APP_STATISTICS.track_event('点击盒子banner');
+        APP_STATISTICS && APP_STATISTICS.track_event('点击盒子banner', '点击盒子_' + id);
+        plus.welfarea(data, url ? url : '')
+      } else {
+        APP_STATISTICS && APP_STATISTICS.track_event('点击盒子关闭');
+        APP_STATISTICS && APP_STATISTICS.track_event('点击盒子关闭', '点击盒子_' + id);
+        plus.welfarea(data, url ? url : '')
+      }
+    }
+  },
+  jingxb(data, url, id) {
+    this.jBool = !this.jBool
+  },
+
+  //每日一词
+  getTodaySentence() {
+    var that = this;
+    fetch.fetch({
+      url: 'https://wx.iciba.com/index.php?c=welcome&m=getTodaySentence',
+      method: 'get',
+      resphonseType: 'json',
+      header: {
+        'Content-Type': 'application/json',
+      },
+      success: function (res) {
+        var resphose = res.data;
+        // that.a=JSON.parse(resphose).data.adInfo
+        that.getToday = JSON.parse(resphose)
+      },
+      fail: function (err) { }
+    })
+  },
+  //双语资讯
+  doubleList() {
+    var that = this;
+    fetch.fetch({
+      url: 'https://wx.iciba.com/index.php?c=welcome&m=next&page=' + that.pages,
+      method: 'get',
+      resphonseType: 'json',
+      header: {
+        'Content-Type': 'application/json',
+      },
+      success: function (res) {
+        var resphose = res.data;
+        if (JSON.parse(resphose).status == 1) {
+          that.messageList = JSON.parse(resphose).message
+        }
+      },
+      fail: function (err) { }
+    })
+  },
+  //换一换
+  exchangeFUn() {
+    this.pages = this.pages + 1;
+    // prompt.showDialog({
+    //     message: this.pages
+    // })
+    this.doubleList()
+  },
+  //轻粒子统计
+  jwelfare(action, click) {
+    APP_STATISTICS && APP_STATISTICS.track_event('点击广告');
+    if (click == 'a_box') {
+      APP_STATISTICS && APP_STATISTICS.track_event('点击插屏');
+      APP_STATISTICS && action.id && APP_STATISTICS.track_event('点击插屏', '点击插屏_' + action.id);
+    } else if (click == 'b_box') {
+      APP_STATISTICS && APP_STATISTICS.track_event('点击banner');
+      APP_STATISTICS && action.id && APP_STATISTICS.track_event('点击banner', '点击banner_' + action.id);
+    } else if (click == 'c_box') {
+      APP_STATISTICS && APP_STATISTICS.track_event('点击浮标');
+      APP_STATISTICS && action.id && APP_STATISTICS.track_event('点击浮标', '点击浮标_' + action.id);
+    } else if (click == 'd_box') {
+      APP_STATISTICS && APP_STATISTICS.track_event('点击盒子');
+      APP_STATISTICS.track_event('翻译通_' + action.id, { "翻译通_": action.id, });
+      APP_STATISTICS && action.id && APP_STATISTICS.track_event('点击盒子', '点击盒子_' + action.id);
+    }
+    plus.welfarea(action.click_type, action.url, action.click_url ? action.click_url : '')
+  },
+
+
+
+  banFun() {
+    this.banBool = !this.banBool
+  },
+
+
+
+
+  // plus.promptFun(url)npm 
+  //是否H5
+  getChannelIsH() {
+    var that = this;
+    storage.get({
+      key: 'userid',
+      success: function (data) {
+        that.userid = data;
+        plus.getInfoa('getInfo').then(res => {
+          let url = publicData.getTabConfig + '&brand=' + res.brand + '&userId=' + that.userid + '&pkgName=' + that.packageName + '&os=' + res.osType
+          plus.requiref(url, {}, 'POST').then(data => {
+            if (JSON.parse(data.data).code == 0) {
+              let resdata = JSON.parse(data.data);
+              if (that.userid == '') {
+                storage.set({
+                  key: 'userid',
+                  value: resdata.data.userId
+                })
+                that.userid = resdata.data.userId;
+              }
+
+              that.gongFun()
+
+              // 如果是H5 
+              var callGetAds = resdata.data.callGetAds
+              let time = setTimeout(() => {
+                if (callGetAds) {
+                  that.getAppdasinfo()
+                }
+                that.PostDeviceInfo()
+                that.PostPullInfoID()
+                that.loging = true
+              }, 800)
+              if (resdata.data.docking_type == 3) {
+                that.webh5 = resdata.data.h5;
+                that.isWeb = true;
+              }
+            }
+          })
+        })
+      }    })
+  },
+
+
+  //获取广告
+  getAppdasinfo() {
+    const that = this;
+    plus.getInfoa('getInfo').then(res => {
+      let url = publicData.getAppdasinfo + '&brand=' + res.brand + '&userId=' + that.userid + '&pkgName=' + that.packageName + '&os=' + res.osType
+      that.windowWidth = res.windowWidth;
+      that.windowHeight = res.windowHeight;
+
+      //获取广告
+      plus.requiref(url, {}, 'POST').then(data => {
+        let resdata = JSON.parse(data.data);
+        // that.a=JSON.stringify(resdata)
+        if (resdata.data && resdata.data.adInfo) {
+          that.adInfo = resdata.data.adInfo
+          that.moveDiv.menuStyle.left = 750 - 120;
+          that.moveDiv.menuStyle.top = "";
+
+          that.addInfo = that.adInfo.ad
+          that.a_box = that.adInfo.ad.data.a_box;
+          that.b_box = that.adInfo.ad.data.b_box;
+          that.a_boxImg = that.adInfo.ad.data.a_box.ad;
+          that.a_boxAd = that.adInfo.ad.data.a_box.pos;
+          let width = that.adInfo.ad.data.a_box.pos.w;
+          that.quewidth = width;
+          that.banBool = that.a_box.show;
+          that.b_boxImg = that.adInfo.ad.data.b_box.ad;
+          that.b_boxAd = that.adInfo.ad.data.b_box.pos;
+          that.diBool = that.adInfo.ad.data.b_box.show
+          that.c_box = that.adInfo.ad.data.c_box;
+          //最新添拖动
+          that.moveDiv.adver = [];
+          let newmoveDiv = that.moveDiv.adver;
+          for (let i in that.c_box) {
+            if (that.c_box[i].pos.left == "false") {
+              if (that.c_box[i].pos.right.replace(/px/g, "") == 0) {
+                that.c_box[i].pos.left = (750 - that.c_box[i].pos.w.replace(/px/g, "")) + 'px'
+              }
+            }
+
+            let obj = {
+              left: that.c_box[i].pos.left.replace(/px/g, "") >= 500 ? 750 - that.c_box[i].pos.w.replace(/px/g, "") : that.c_box[i].pos.left.replace(/px/g, ""),
+              top: that.c_box[i].pos.top.replace(/px/g, ""),
+              disX: 0,
+              disY: 0,
+              beginDrag: false
+            }
+            that.moveDiv.adver.push(obj)
+          }
+          that.show_native = resdata.data.adInfo.ad.show_native
+        }
+        if (resdata.data.docking_type == 3) {
+          that.webh5 = resdata.data.h5;
+          that.isWeb = true;
+        }
+      })
+    })
+  },
+
+  //上传设备
+  PostDeviceInfo() {
+    var that = this;
+    storage.get({
+      key: 'dataObj',
+      success: function (data) {
+        that.dataObj = data ? JSON.parse(data) : that.dataObj;
+        plus.getInfoa('getInfo').then(res => {
+          let url = publicData.PostDeviceInfo + '&brand=' + res.brand + '&userId=' + that.userid + '&pkgName=' + that.packageName + '&os=' + res.osType
+          plus.requiref(url, that.dataObj, 'POST').then(data => {
+          })
+        })
+      }    })
+  },
+
+  //上传推送id
+  PostPullInfoID() {
+    var that = this;
+    plus.getInfoa('getInfo').then(res => {
+      let url = publicData.PostPullInfoID + '&brand=' + res.brand + '&userId=' + that.userid + '&pkgName=' + that.packageName + '&os=' + res.osType + '&regId=' + that.regId
+      plus.requiref(url, {}, 'POST').then(data => {
+      })
+    })
+  },
+
+  //获取设备信息
+  gongFun() {
+    var that = this;
+    that.dataObj.userId = that.userid ? that.userid : '';
+    plus.getInfoa('getInfo').then(res => {
+      that.dataObj.deviceInfo = res;
+      storage.set({
+        key: 'dataObj',
+        value: that.dataObj
+      })
+    }) //获取设备
+    plus.getInfoa('getUserId').then(res => {
+      that.dataObj.userInfo.userId = res;
+      storage.set({
+        key: 'dataObj',
+        value: that.dataObj
+      })
+    }) //获取设备唯一id
+    plus.getInfoa('getAdvertisingId').then(res => {
+      that.dataObj.userInfo.advertisingId = res;
+      storage.set({
+        key: 'dataObj',
+        value: that.dataObj
+      })
+    }) //获取广告唯一标识
+    // plus.getInfoa('getSerial').then(res => {
+    //     that.dataObj.userInfo.serial = res;
+    //     storage.set({
+    //         key: 'dataObj',
+    //         value: that.dataObj
+    //     })
+    // }) 
+    //获取设备序列号
+    plus.getInfoa('getOAID').then(res => {
+      that.dataObj.userInfo.oaid = res;
+      storage.set({
+        key: 'dataObj',
+        value: that.dataObj
+      })
+    }) //返回厂商设备标识符中的OAID（匿名设备标识符）
+  },
+
+  diFun() {
+    this.diBool = !this.diBool;
+  },
+  actionFun(e, url) {
+    if (e == 1) {
+      router.push({
+        uri: '/CardDemo',
+        params: { url: url }
+      })
+    } else {
+      router.push({
+        uri: url
+      })
+    }
+  },
+  tiaoAbout(id) {
+    router.push({
+      uri: '/About',
+      params: { id: id }
+    })
+  },
+  // 获取不同的节点
+  nodefunction(ev) {
+    if (ev.target.attr.value && ev.target) {
+      var val = ev.target.attr.value;
+      if (val) {
+        return val;
+      } else {
+        val = ev.target.attr.attrs.value;
+        return val;
+      }
+    }
+    if (ev.target.attr.attrs.value && ev.target) {
+
+      if (ev.target.attr.attrs.value) {
+        return val;
+      }
+    }
+
+  },
+  shuFun(ev) {
+    // this.a=ev      
+
+    // this.newAbool=true;
+    if (ev.value) {
+      this.textValue = ev.value
+      this.textFuna()
+    } else {
+      this.textValue = ' '
+    }
+
+  },
+  //输入
+  textFuna() {
+    var that = this;
+    // prompt.showToast({
+    //       message: that.textValue,
+    //       duration: 1
+    //   })
+    fetch.fetch({
+      url: 'https://wx.iciba.com/index.php?c=welcome&m=getSuggest&word=' + that.textValue,
+      method: 'get',
+      resphonseType: 'json',
+      header: {
+        'Content-Type': 'application/json',
+      },
+      success: function (res) {
+        var resphose = res.data;
+        if (JSON.parse(resphose).status == 1) {
+          // that.a=JSON.parse(resphose).message 
+
+          that.messageArr = JSON.parse(resphose).message
+          // prompt.showToast({
+          //     message: that.messageArr,
+          //     duration: 1
+          // })                    
+        }
+      },
+      fail: function (err) { }
+    })
+  },
+  tiaoDemo(value) {
+    router.push({
+      uri: '/DemoDetail',
+      params: { value: value }
+    })
+  },
+  textFun() {
+    const that = this;
+    let sd = that.obj.id ? that.obj.id : that.to
+
+    if (!that.shuInput) return
+    let salt = Date.now(); //随机数
+    let sign = md5(`${appid}${that.shuInput}${salt}${key}`)  //拼接 MD5进行加密      
+    fetch.fetch({
+      url: 'https://fanyi-api.baidu.com/api/trans/vip/translate',
+      method: 'GET',
+      responseType: 'json',
+      data: {
+        appid: '20200323000403230',
+        from: 'auto',
+        q: that.shuInput,
+        to: that.obj.id ? that.obj.id : that.to,
+        sign,
+        salt
+      },
+      success: function (res) {
+
+        if (res.data.trans_result) {
+          that.jieInput = res.data.trans_result[0].dst;
+          let obj = {
+            src: res.data.trans_result[0].src,
+            dst: res.data.trans_result[0].dst
+          }
+          that.arr.push(obj)
+          storage.set({
+            key: "arr",
+            value: that.arr
+          })
+          storage.set({
+            key: "isbool",
+            value: '1'
+          })
+        }
+
+      }
+    })
+  },
+  //最新添拖动
+  menuTouchStart(event) {
+    this.moveDiv.beginDrag = true;
+    this.moveDiv.menuStyle.disX = event.touches[0].offsetX;
+    this.moveDiv.menuStyle.disY = event.touches[0].offsetY;
+  },
+  menuTouchMove(event) {
+    if (this.moveDiv.beginDrag) {
+      event.stopPropagation()
+      let resetDeviceScreenWidth = event.touches[0].clientX > device.windowWidth ? ((device.windowWidth / device.screenDensity) * 3) : device.windowWidth;
+      let resetDeviceScreenHeight = event.touches[0].clientY > device.windowHeight ? ((device.windowHeight / device.screenDensity) * 3) : device.windowHeight;
+      let menuStyleLeft = event.touches[0].clientX - this.moveDiv.menuStyle.disX;
+      let menuStyleTop = event.touches[0].clientY - this.moveDiv.menuStyle.disY;
+      this.moveDiv.menuStyle.left = menuStyleLeft > 0 ? (menuStyleLeft > (resetDeviceScreenWidth - 204) ? resetDeviceScreenWidth - 204 : menuStyleLeft) : 0;
+      this.moveDiv.menuStyle.top = menuStyleTop > 0 ? (menuStyleTop > (resetDeviceScreenHeight - 204) ? resetDeviceScreenHeight - 204 : menuStyleTop) : 0;
+    }
+  },
+  menuTouchEnd(data) {
+
+    this.moveDiv.beginDrag = false;
+    this.moveDiv.menuStyle.disX = this.moveDiv.menuStyle.disY = 0;
+  },
+
+  // 红包
+  menuTouchStart1(data, event) {
+    this.moveDiv.adver[data].beginDrag = true;
+    this.moveDiv.adver[data].disX = event.touches[0].offsetX;
+    this.moveDiv.adver[data].disY = event.touches[0].offsetY;
+  },
+  menuTouchMove1(data, event) {
+    if (this.moveDiv.adver[data].beginDrag) {
+      event.stopPropagation()
+      let resetDeviceScreenWidth = event.touches[0].clientX > device.windowWidth ? ((device.windowWidth / device.screenDensity) * 3) : device.windowWidth;
+      let resetDeviceScreenHeight = event.touches[0].clientY > device.windowHeight ? ((device.windowHeight / device.screenDensity) * 3) : device.windowHeight;
+      let menuStyleLeft = event.touches[0].clientX - this.moveDiv.adver[data].disX;
+      let menuStyleTop = event.touches[0].clientY - this.moveDiv.adver[data].disY;
+      this.moveDiv.adver[data].left = menuStyleLeft > 0 ? (menuStyleLeft > (resetDeviceScreenWidth - 204) ? resetDeviceScreenWidth - 204 : menuStyleLeft) : 0;
+      this.moveDiv.adver[data].top = menuStyleTop > 0 ? (menuStyleTop > (resetDeviceScreenHeight - 204) ? resetDeviceScreenHeight - 204 : menuStyleTop) : 0;
+    }
+  },
+  menuTouchEnd1(data) {
+    this.moveDiv.adver[data].beginDrag = false;
+    this.moveDiv.adver[data].disX = this.moveDiv.adver[data].disY = 0;
+  },
+
+}
+
+</script>
+
+<style>
+.demo-page {
+  flex-direction: column;
+  background-color: #f6f6f6;
+}
+
+.title {
+  font-size: 40px;
+  text-align: center;
+}
+
+.btn {
+  width: 550px;
+  height: 86px;
+  margin-top: 75px;
+  border-radius: 43px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+}
+
+/* * index.wxss * */
+
+.change {
+  color: #8995a1;
+  font-size: 24px;
+  padding: 20px 40px;
+  display: flex;
+
+  align-items: center;
+}
+.change .icon-right {
+  color: #888;
+}
+.change .icon-down {
+  color: #8995a1;
+  font-size: 20px;
+}
+
+.input-area {
+  position: relative;
+}
+.textarea-wrap {
+  background-color: #d1d1d1;
+  border-bottom: 1px solid #d1d1d1;
+}
+.textarea-input {
+  background-color: #ffffff;
+  width: 750px;
+  height: 200px;
+}
+.input-area textarea {
+  background-color: #fff;
+  padding: 30px 0 30px 30px;
+  width: calc(100% - 48px);
+
+  margin: 0;
+  box-sizing: border-box;
+}
+.input-area .icon-close {
+  position: absolute;
+  right: 12px;
+  top: 20px;
+  z-index: 100;
+  font-size: 40px;
+  color: #888;
+}
+
+.input-area .text-area {
+  min-height: 80px;
+  padding: 30px;
+  background-color: #fff;
+}
+
+.input-area .text-title {
+  font-size: 28px;
+  color: #8995a1;
+}
+
+.input-area .text-result {
+  padding: 20px 0;
+}
+
+.hap-div {
+  height: 500px !important;
+}
+
+/* 遮罩层 */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1001;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.jingC {
+  width: 695px;
+  height: 911px;
+  margin-left: 30px;
+  border-radius: 15px;
+  background-color: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  position: relative;
+}
+.newBanner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.imgFixa {
+  position: fixed;
+}
+.imgFix {
+  position: absolute;
+}
+/* 遮罩层 */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1001;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.maska {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1001;
+  background-color: #000000;
+}
+
+.jingC {
+  width: 695px;
+  height: 911px;
+  margin-left: 30px;
+  border-radius: 15px;
+  background-color: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  position: relative;
+}
+.nDiv1 {
+  width: 695px;
+  /* height: 62px; */
+  display: flex;
+  align-items: center;
+  font-size: 28px;
+  color: #0184ff;
+  /* margin-top:50px; */
+  justify-content: center;
+  overflow: hidden;
+}
+.nDiv2 {
+  width: 695px;
+  height: 784px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  font-size: 28px;
+  color: #0184ff;
+  margin-top: 20px;
+  overflow: hidden;
+  align-items: flex-start;
+}
+.nDiv3 {
+  width: 150px;
+  height: 280px;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 28px;
+  color: #0184ff;
+  margin-top: 20px;
+  justify-content: center;
+  overflow: hidden;
+  margin-right: 30px;
+  margin-left: 30px;
+  padding-left: 20px;
+}
+.nDiv4 {
+  width: 695px;
+  height: 140px;
+  display: flex;
+  justify-content: flex-start;
+  font-size: 28px;
+  color: #0184ff;
+  margin-top: 1px;
+  justify-content: center;
+  overflow: hidden;
+  padding-left: 20px;
+}
+
+.newFlex {
+  display: flex;
+  flex-wrap: wrap;
+}
+.newFlex1 {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ks-search {
+  width: 750px;
+  height: 200px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #4189df;
+  padding-bottom: 30px;
+}
+.zhe {
+  position: fixed;
+  left: 0;
+  top: 200px;
+  bottom: 0px;
+  right: 0px;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.zhe1 {
+  position: fixed;
+  left: 0;
+  top: 200px;
+  bottom: 0px;
+  right: 0px;
+  background-color: #ffffff;
+  z-index: 9999;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+.shur {
+  width: 720px;
+  height: 100px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ks-mask-line {
+  line-height: 72px;
+  margin-top: 50px;
+  padding-left: 30px;
+}
+.swiper {
+  width: 695px;
+  height: 180px;
+}
+</style>

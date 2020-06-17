@@ -1,0 +1,80 @@
+{
+  "package": "com.kuaiy_fy.fyt",
+  "name": "翻译通",
+  "versionName": "1.0.3",
+  "versionCode": "3",
+  "minPlatformVersion": "1050",
+  "icon": "/Common/logo.png",
+  "features": [
+    {
+      "name": "system.prompt"
+    },
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "system.shortcut"
+    }
+  ],
+  "permissions": [
+    {
+      "origin": "*"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "data":{
+      "packageName": "com.kuaiy_fy.fyt"
+    }
+  },
+  "router": {
+    "entry": "Index",
+    "pages": {
+      "Index": {
+        "component": "index"
+      },
+      "DemoDetail": {
+        "component": "index"
+      },
+      "About": {
+        "component": "index"
+      },
+      "CardDemo": {
+        "component": "index"
+      },
+      "TransitH5": {
+        "component": "index"
+      },
+      "MoveH5": {
+        "component": "index"
+      }
+    }
+  },
+  "display": {
+    "titleBarBackgroundColor": "#f2f2f2",
+    "titleBarTextColor": "#414141",
+    "menu": true,
+    "pages": {
+      "Index": {
+        "titleBarText": "翻译通",
+        "menu": false
+      },
+      "DemoDetail": {
+        "titleBarText": "查词结果"
+      },
+      "About": {
+        "titleBarText": "双语文章",
+        "menu": false
+      },
+      "CardDemo": {
+        "titleBarText": " "
+      },
+      "TransitH5": {
+        "menu": false
+      },
+      "MoveH5": {
+        "menu": false
+      }
+    }
+  }
+}
